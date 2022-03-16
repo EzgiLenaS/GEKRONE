@@ -1,0 +1,121 @@
+/## this is an example program to cover a rectangular field #/
+
+/##size of the field #/
+field_length = 500;
+field_width = 250;
+nozzle_width = 5;
+
+/## setting the default speeds #/
+set_HFS(10);
+set_HBS(5);
+set_VUS(5);
+set_VDS(5);
+set_TS(10);
+
+/## takeoff function #/
+gek takeOff(height){
+	battery = read_battery();
+	tank = read_tank();
+	if(battery >= 80 && tank >= 75){
+		vertical_movement(auto, height);
+	}
+}
+/## land function #/
+gek land(){
+	height = read_altitude();
+	height = height * -1;
+	nozzle(0);
+	vertical_movement(auto, height);
+}
+
+/## automatically takeoff, cover the field and land afterwards #/
+gek coverField(){
+	takeOff();
+	repeat = field_width / nozzle_width;
+	repeat = repeat * 2;
+	battery = read_battery();
+	for(repeat){
+		if(battery < 10){
+			land();
+		}
+		nozzle(1);
+		horizontal_movement(auto, field_length);
+		nozzle(0);
+		turn(auto, 90);
+		horizontal_movement(auto, nozzle_width);
+		turn(auto, 90);
+		nozzle(1);
+		horizontal_movement(auto, field_length);
+		nozzle(0);
+		turn(auto, -90);
+		horizontal_movement(auto, nozzle_width);
+		turn(auto, -90);
+		nozzle(1);
+	}
+	land();
+}
+
+/## this is an example program to cover a triangular field #/
+
+/##size of the field #/
+field_length_a = 400;
+field_length_b = 400;
+field_length_c = 400;
+angle_ab = 60;
+angle_bc = 60;
+angle_ac = 60;
+angle_ac_half = angle_ac / 2;
+counter = 0;
+nozzle_width_double = nozzle_width * 2;
+
+/## setting the default speeds #/
+set_HFS(10);
+set_HBS(5);
+set_VUS(5);
+set_VDS(5);
+set_TS(10);
+
+/## takeoff function #/
+gek takeOff(height){
+	battery = read_battery();
+	tank = read_tank();
+	if(battery >= 80 && tank >= 75){
+		vertical_movement(auto, height);
+	}
+}
+/## land function #/
+gek land(){
+	height = read_altitude();
+	height = height * -1;
+	vertical_movement(auto, height);
+}
+
+
+gek goback(){
+	turn(auto, 180);
+	distance = counter * nozzle_width;
+	horizontal_movement(auto, distance);
+	land();
+}
+
+/## automatically takeoff, cover the field and land afterwards #/
+gek coverField(){
+	takeOff();
+		while( field_length_a >= nozzle_width && field_length_b >= nozzle_width && field_length_c >= nozzle_width){	
+			nozzle(1);
+			horizontal_movement(auto, field_length_a);
+			turn(auto, angle_ab);
+			horizontal_movement(auto, field_length_b);
+			turn(auto, angle_bc);
+			horizontal_movement(auto, field_length_c);
+			turn(auto, angle_ac_half);
+			nozzle(0);
+			horizontal_movement(auto, nozzle_width);
+			field_length_a = field_length_a - nozzle_width_double;
+			field_length_b = field_length_b - nozzle_width_double;
+			field_length_c = field_length_c - nozzle_width_double;
+			counter = counter + 1;
+		}
+    
+	goback();
+}
